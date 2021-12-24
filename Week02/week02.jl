@@ -124,3 +124,41 @@ xm = x .- m_hat
 s2 = xm'*xm / samples
 s = sqrt(s2)
 println("Biased Std Data vs Optimized $s - $s_hat")
+
+#MLE for Regression
+n = 1000
+Beta = [i for i in 1:5]
+x = hcat(fill(1.0,n),randn(n,4))
+y = x*Beta + randn(n)
+
+
+function myll(s, b...)
+    n = size(y,1)
+    beta = collect(b)
+    xm = y - x*beta
+    s2 = s*s
+    ll = -n/2 * log(s2 * 2 * π) - xm'*xm/(2*s2)
+    return ll
+end
+
+#MLE Optimization problem
+    mle = Model(Ipopt.Optimizer)
+    set_silent(mle)
+
+    @variable(mle, beta[i=1:5],start=0)
+    @variable(mle, σ >= 0.0, start = 1.0)
+
+    register(mle,:ll,6,myll;autodiff=true)
+
+    @NLobjective(
+        mle,
+        Max,
+        ll(σ,beta...)
+    )
+##########################
+optimize!(mle)
+
+println("Betas: ", value.(beta))
+
+b_hat = inv(x'*x)*x'*y
+println("OLS: ", b_hat)
