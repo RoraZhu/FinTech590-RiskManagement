@@ -7,6 +7,7 @@ using Fontconfig
 using Printf
 using JuMP
 using Ipopt
+using StateSpaceModels
 
 
 #1 Pearson Correlated 
@@ -126,11 +127,10 @@ s = sqrt(s2)
 println("Biased Std Data vs Optimized $s - $s_hat")
 
 #MLE for Regression
-n = 1000
+n = 50
 Beta = [i for i in 1:5]
 x = hcat(fill(1.0,n),randn(n,4))
 y = x*Beta + randn(n)
-
 
 function myll(s, b...)
     n = size(y,1)
@@ -162,3 +162,106 @@ println("Betas: ", value.(beta))
 
 b_hat = inv(x'*x)*x'*y
 println("OLS: ", b_hat)
+
+#Example R^2 inflation
+e = y .- x*b_hat
+sse = e'*e
+ssy = sum((y .- mean(y)).^2)
+R2 = 1 - (sse/ssy)
+
+x_rand = randn(n)
+x_new = hcat(x,x_rand)
+b_hat_new = inv(x_new'*x_new)*x_new'*y
+e = y .- x_new*b_hat_new
+sse = e'*e 
+R2_new = 1 - (sse/ssy)
+
+println("Increase in R^2 : $(R2_new - R2)")
+
+#ACF and PACF
+
+function plot_ts(y;imgName="series", length=10)
+    n = size(y,1)
+    l = [i for i in 1:length]
+    acf = autocor(y,l)
+    p_acf = pacf(y, l)
+
+    df = DataFrame(:t=>l, :acf=>acf, :pacf=>p_acf)
+
+    bg = Theme(
+        panel_fill=colorant"grey"
+    )
+
+    Gadfly.with_theme(:dark) do
+        p0 = plot(x=[i for i in 1:n], y=y,Geom.line)
+
+        p1 = plot(df, layer(x=:t, y=:acf, Geom.line), layer(x=:t, y=:acf, Geom.point), Scale.x_discrete)
+        push!(p1,Guide.title("AutoCorrelation"))
+        p2 = plot(df, layer(x=:t, y=:pacf, Geom.line),layer(x=:t, y=:pacf, Geom.point), Scale.x_discrete)
+        push!(p2,Guide.title("Partial AutoCorrelation"))
+
+        p = vstack(p0,hstack(p1,p2))
+
+        img = PNG(imgName,8inch, 8inch)
+        draw(img,p)
+    end
+
+    nothing
+end
+
+#AR1
+#y_t = 1.0 + 0.5*y_t-1 + e, e ~ N(0,0.1)
+n = 1000
+burn_in = 50
+y = Vector{Float64}(undef,n)
+
+yt_last = 1.0
+d = Normal(0,0.1)
+e = rand(d,n+burn_in)
+
+for i in 1:(n+burn_in)
+    y_t = 1.0 + 0.5*yt_last + e[i]
+    yt_last = y_t
+    if i > burn_in
+        y[i-burn_in] = y_t
+    end
+end
+
+println(@sprintf("Mean and Var of Y: %.2f, %.4f",mean(y),var(y)))
+println(@sprintf("Expected values Y: %.2f, %.4f",2.0,.01/(.75)))
+
+
+plot_ts(y,imgName="ar1_acf_pacf.png")
+
+ar1 = SARIMA(y,order=(1,0,0),include_mean=true)
+
+StateSpaceModels.fit!(ar1)
+r = results(ar1)
+
+
+#MA1
+#y_t = 1.0 + .05*e_t-1 + e, e ~ N(0,.01)
+n = 1000
+burn_in = 50
+y = Vector{Float64}(undef,n)
+
+yt_last = 1.0
+d = Normal(0,0.1)
+e = rand(d,n+burn_in)
+
+for i in 2:(n+burn_in)
+    y_t = 1.0 + 0.5*e[i-1] + e[i]
+    if i > burn_in
+        y[i-burn_in] = y_t
+    end
+end
+
+println(@sprintf("Mean and Var of Y: %.2f, %.4f",mean(y),var(y)))
+println(@sprintf("Expected values Y: %.2f, %.4f",1.0,(1+.5^2)*.01))
+
+plot_ts(y,imgName="ma1_acf_pacf.png")
+
+ma1 = SARIMA(y,order=(0,0,1),include_mean=true)
+
+StateSpaceModels.fit!(ma1)
+results(ma1)
