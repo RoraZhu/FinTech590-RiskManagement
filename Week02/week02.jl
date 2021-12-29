@@ -8,6 +8,7 @@ using Printf
 using JuMP
 using Ipopt
 using StateSpaceModels
+using LinearAlgebra
 
 
 #1 Pearson Correlated 
@@ -74,8 +75,6 @@ println("Spearman $(corspearman(x,y))")
 r_x = tiedrank(x)
 r_y = tiedrank(y)
 println("Calculated Spearman $(cor(r_x,r_y))")
-
-#Regression Example...
 
 
 #MLE
@@ -228,7 +227,7 @@ for i in 1:(n+burn_in)
 end
 
 println(@sprintf("Mean and Var of Y: %.2f, %.4f",mean(y),var(y)))
-println(@sprintf("Expected values Y: %.2f, %.4f",2.0,.01/(.75)))
+println(@sprintf("Expected values Y: %.2f, %.4f",2.0,.01/(1-.5^2)))
 
 
 plot_ts(y,imgName="ar1_acf_pacf.png")
@@ -236,7 +235,7 @@ plot_ts(y,imgName="ar1_acf_pacf.png")
 ar1 = SARIMA(y,order=(1,0,0),include_mean=true)
 
 StateSpaceModels.fit!(ar1)
-r = results(ar1)
+results(ar1)
 
 
 #MA1
