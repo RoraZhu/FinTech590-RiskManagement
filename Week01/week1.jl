@@ -5,6 +5,7 @@ using Gadfly
 using Cairo
 using Fontconfig
 using BenchmarkTools
+using StatsBase
 
 
 # PDF Example
@@ -31,6 +32,7 @@ draw(img,p)
 n=501
 approxCDF = 0.0
 for i in 1:n
+    global approxCDF
     approxCDF += df.pdf[i]*0.01
 end
 
@@ -62,8 +64,6 @@ function first4Moments(sample)
     σ2_hat = sim_corrected'*sim_corrected/(n-1)
 
     #skew
-    # skew_hat = n*sum(sim_corrected.^3)/( (n-1) * (n-2) )/(σ2_hat^(3/2))
-
     skew_hat = sum(sim_corrected.^3)/n/sqrt(cm2*cm2*cm2)
 
     #kurtosis
@@ -80,8 +80,9 @@ println("Mean $m ($(mean(sim)))")
 println("Variance $s2 ($(var(sim)))")
 println("Skew $sk ($(skewness(sim)))")
 println("Kurtosis $k ($(kurtosis(sim)))")
+
 println("mean diff = $(m - mean(sim))")
-println("Skewness diff = $(s2 - var(sim))")
+println("Variance diff = $(s2 - var(sim))")
 println("Skewness diff = $(sk - skewness(sim))")
 println("Kurtosis diff = $(k - kurtosis(sim))")
 
@@ -114,6 +115,9 @@ kurts = Vector{Float64}(undef,samples)
 Threads.@threads for i in 1:samples
     kurts[i] = kurtosis(rand(d,100_000))
 end
+
+#summary statistics
+describe(kurts)
 
 t = mean(kurts)/sqrt(var(kurts)/samples)
 p = 2*(1 - cdf(TDist(samples-1),abs(t)))

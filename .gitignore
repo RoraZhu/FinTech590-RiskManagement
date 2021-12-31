@@ -26,3 +26,4 @@ Manifest.toml
 #Ignore so/dll sysimages
 *.dll
 *.so
+Week01/.vscode/settings.json
