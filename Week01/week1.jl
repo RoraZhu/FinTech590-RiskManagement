@@ -1,8 +1,7 @@
 using Distributions
 using HypothesisTests
 using DataFrames
-using Gadfly
-using Cairo
+using Plots
 using Fontconfig
 using BenchmarkTools
 using StatsBase
@@ -17,16 +16,15 @@ df[!,:pdf] = pdf.(d,x)
 
 println(first(df,5))
 
-p = plot(df,x=:x, y=:pdf, Geom.line)
-img = PNG("pdf.png",6inch, 4inch)
-draw(img,p)
+p = plot(df.x, df.pdf, label="PDF")
+savefig(p,"pdf.png")
+
 
 # CDF
 df[!,:cdf] = cdf.(d,x)
 
-p = plot(df,x=:x, y=:cdf, Geom.line)
-img = PNG("cdf.png",6inch, 4inch)
-draw(img,p)
+p = plot(df.x, df.cdf, label="CDF")
+savefig(p,"cdf.png")
 
 # Quick and dirty integration of the PDF
 n=501
