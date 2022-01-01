@@ -56,11 +56,11 @@ println("")
 #Descriptive Stats on the Study
 println("Wins Not Switching")
 describe(winsKeep)
-println("SD: $(std(winsKeep))")
+println("SD: $(StatsBase.std(winsKeep))")
 
 
 println("############################################################")
 println("")
 println("Wins Switching")
 describe(winsSwitch)
-println("SD: $(std(winsSwitch))")
+println("SD: $(StatsBase.std(winsSwitch))")
