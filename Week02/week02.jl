@@ -219,6 +219,7 @@ d = Normal(0,0.1)
 e = rand(d,n+burn_in)
 
 for i in 1:(n+burn_in)
+    global yt_last
     y_t = 1.0 + 0.5*yt_last + e[i]
     yt_last = y_t
     if i > burn_in
@@ -249,6 +250,7 @@ d = Normal(0,0.1)
 e = rand(d,n+burn_in)
 
 for i in 2:(n+burn_in)
+    global yt_last
     y_t = 1.0 + 0.5*e[i-1] + e[i]
     if i > burn_in
         y[i-burn_in] = y_t
