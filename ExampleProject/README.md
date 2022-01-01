@@ -2,7 +2,7 @@
 
 Run code from the local project
 ```
->julia --project example.jl
+julia --project example.jl
 ```
 
 If you get an error on missing libraries, install the packages
