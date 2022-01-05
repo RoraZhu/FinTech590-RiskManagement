@@ -2,7 +2,6 @@ using Distributions
 using HypothesisTests
 using DataFrames
 using Plots
-using Fontconfig
 using BenchmarkTools
 using StatsBase
 
@@ -16,15 +15,15 @@ df[!,:pdf] = pdf.(d,x)
 
 println(first(df,5))
 
-p = plot(df.x, df.pdf, label="PDF")
-savefig(p,"pdf.png")
+p = Plots.plot(df.x, df.pdf, label="PDF")
+Plots.savefig(p,"pdf.png")
 
 
 # CDF
 df[!,:cdf] = cdf.(d,x)
 
-p = plot(df.x, df.cdf, label="CDF")
-savefig(p,"cdf.png")
+p = Plots.plot(df.x, df.cdf, label="CDF")
+Plots.savefig(p,"cdf.png")
 
 # Quick and dirty integration of the PDF
 n=501
