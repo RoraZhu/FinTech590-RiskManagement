@@ -4,6 +4,8 @@ using DataFrames
 using Gadfly
 using Cairo
 using Fontconfig
+using CSV
+using Plots
 using Printf
 using JuMP
 using Ipopt
@@ -77,6 +79,8 @@ r_y = tiedrank(y)
 println("Calculated Spearman $(cor(r_x,r_y))")
 
 
+
+
 #MLE
 #sample a random normal N(1.0, 5.0)
 samples = 100
@@ -125,6 +129,9 @@ s2 = xm'*xm / samples
 s = sqrt(s2)
 println("Biased Std Data vs Optimized $s - $s_hat")
 
+
+
+
 #MLE for Regression
 n = 50
 Beta = [i for i in 1:5]
@@ -162,20 +169,41 @@ println("Betas: ", value.(beta))
 b_hat = inv(x'*x)*x'*y
 println("OLS: ", b_hat)
 
+
+
 #Example R^2 inflation
-e = y .- x*b_hat
-sse = e'*e
-ssy = sum((y .- mean(y)).^2)
-R2 = 1 - (sse/ssy)
+prob1 = CSV.read("Project/problem1.csv",DataFrame)
+n = size(prob1,1)
+X = [ones(n) prob1.x]
+Y = prob1.y
 
-x_rand = randn(n)
-x_new = hcat(x,x_rand)
-b_hat_new = inv(x_new'*x_new)*x_new'*y
-e = y .- x_new*b_hat_new
-sse = e'*e 
-R2_new = 1 - (sse/ssy)
+function calc_r2(Y,X)
+    n = size(Y,1)
+    p = size(X,2)
 
-println("Increase in R^2 : $(R2_new - R2)")
+    B = inv(X'*X)*X'*Y
+    e = Y - X*B
+
+    sse = e'*e
+    Y_n = Y .- mean(Y)
+    ssy = Y_n' * Y_n
+
+    R2 = 1.0 - sse/ssy
+    Adj_R2 = 1.0 - (sse/ssy)*(n-1)/(n-p-1)
+    return R2, Adj_R2
+end
+
+p = [i for i in 2.0:100.0]
+R2 = Vector{Float64}(undef,size(p,1))
+aR2 = Vector{Float64}(undef,size(p,1))
+
+R2[1], aR2[1] = calc_r2(Y,X)
+for i in 2:size(p,1)
+    X = [X randn(n)]
+    R2[i], aR2[i] = calc_r2(Y,X)
+end
+
+Plots.plot(p,[R2 aR2], label=["R^2" "Adjusted R^2"],legend=:topleft)
 
 #ACF and PACF
 
