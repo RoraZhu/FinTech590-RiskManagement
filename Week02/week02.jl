@@ -1,11 +1,9 @@
 using Distributions
 using StatsBase
 using DataFrames
-using Gadfly
-using Cairo
-using Fontconfig
 using CSV
 using Plots
+using PlotThemes
 using Printf
 using JuMP
 using Ipopt
@@ -22,9 +20,8 @@ y = f.(x)
 df = DataFrame(:x => x, :y=>y)
 
 rho = cor(x,y)
+p0 = Plots.plot(df.x, df.y, seriestype=:scatter, title="ρ = $rho", legend=false)
 
-p1 = plot(df,x=:x, y=:y, Geom.point)
-push!(p1,Guide.title("ρ = $rho"))
 
 #0 Pearson Correlation
 f(x) = x^2 
@@ -35,13 +32,11 @@ df = DataFrame(:x => x, :y=>y)
 
 rho = cor(x,y)
 
-p0 = plot(df,x=:x, y=:y, Geom.point)
-push!(p0,Guide.title("ρ = $rho"))
+p1 = Plots.plot(df.x, df.y, seriestype=:scatter, title="ρ = $rho", legend=false)
 
-p = hstack(p1,p0)
+p = Plots.plot(p0,p1, layout=(1,2))
+Plots.savefig(p,"pearson.png")
 
-img = PNG("pearson.png",8inch, 4inch)
-draw(img,p)
 
 
 #Spearman Correlation
@@ -55,12 +50,9 @@ df = DataFrame(:x => x, :y=>y)
 rho = cor(x,y)
 spearman = corspearman(x,y)
 
-p0 = plot(df,x=:x, y=:y, Geom.point)
-push!(p0,Guide.title(@sprintf("ρ = %.2f -- Spearman = %.2f",rho, spearman)))
+p0 = Plots.plot(df.x, df.y, seriestype=:scatter, title=@sprintf("ρ = %.2f -- Spearman = %.2f",rho, spearman), legend=false)
+Plots.savefig(p0,"spearman.png")
 
-
-img = PNG("spearman.png",6inch, 4inch)
-draw(img,p0)
 
 #Example Spearman calculation using Tied Ranks and the Pearson Correlation.
 x = [1.2,
@@ -199,6 +191,7 @@ aR2 = Vector{Float64}(undef,size(p,1))
 
 R2[1], aR2[1] = calc_r2(Y,X)
 for i in 2:size(p,1)
+    global X
     X = [X randn(n)]
     R2[i], aR2[i] = calc_r2(Y,X)
 end
@@ -207,7 +200,7 @@ Plots.plot(p,[R2 aR2], label=["R^2" "Adjusted R^2"],legend=:topleft)
 
 #ACF and PACF
 
-function plot_ts(y;imgName="series", length=10)
+function plot_ts(y;imgName="series", length=10,title=nothing)
     n = size(y,1)
     l = [i for i in 1:length]
     acf = autocor(y,l)
@@ -215,25 +208,27 @@ function plot_ts(y;imgName="series", length=10)
 
     df = DataFrame(:t=>l, :acf=>acf, :pacf=>p_acf)
 
-    bg = Theme(
-        panel_fill=colorant"grey"
-    )
+    
+    theme(:dark)
 
-    Gadfly.with_theme(:dark) do
-        p0 = plot(x=[i for i in 1:n], y=y,Geom.line)
-
-        p1 = plot(df, layer(x=:t, y=:acf, Geom.line), layer(x=:t, y=:acf, Geom.point), Scale.x_discrete)
-        push!(p1,Guide.title("AutoCorrelation"))
-        p2 = plot(df, layer(x=:t, y=:pacf, Geom.line),layer(x=:t, y=:pacf, Geom.point), Scale.x_discrete)
-        push!(p2,Guide.title("Partial AutoCorrelation"))
-
-        p = vstack(p0,hstack(p1,p2))
-
-        img = PNG(imgName,8inch, 8inch)
-        draw(img,p)
+    if title === nothing
+        p0 = Plots.plot([i for i in 1:n], y, legend=false)
+    else
+        p0 = Plots.plot([i for i in 1:n], y, legend=false,title=title)
     end
+    
 
-    nothing
+    p1 = Plots.plot(df.t, df.acf, title="AutoCorrelation", seriestype=:bar, legend=false)
+
+    p2 = Plots.plot(df.t, df.pacf, title="AutoCorrelation", seriestype=:bar, legend=false)
+    
+
+
+    p = plot(p0, plot(p1,p2,layout=(1,2)),layout=(2,1))
+
+    Plots.savefig(p,imgName)
+
+    p
 end
 
 #AR1
@@ -258,8 +253,7 @@ end
 println(@sprintf("Mean and Var of Y: %.2f, %.4f",mean(y),var(y)))
 println(@sprintf("Expected values Y: %.2f, %.4f",2.0,.01/(1-.5^2)))
 
-
-plot_ts(y,imgName="ar1_acf_pacf.png")
+plot_ts(y,imgName="ar1_acf_pacf.png",title="AR 1")
 
 ar1 = SARIMA(y,order=(1,0,0),include_mean=true)
 
@@ -288,7 +282,7 @@ end
 println(@sprintf("Mean and Var of Y: %.2f, %.4f",mean(y),var(y)))
 println(@sprintf("Expected values Y: %.2f, %.4f",1.0,(1+.5^2)*.01))
 
-plot_ts(y,imgName="ma1_acf_pacf.png")
+plot_ts(y,imgName="ma1_acf_pacf.png",title="MA 1")
 
 ma1 = SARIMA(y,order=(0,0,1),include_mean=true)
 
