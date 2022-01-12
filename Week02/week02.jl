@@ -220,7 +220,7 @@ function plot_ts(y;imgName="series", length=10,title=nothing)
 
     p1 = Plots.plot(df.t, df.acf, title="AutoCorrelation", seriestype=:bar, legend=false)
 
-    p2 = Plots.plot(df.t, df.pacf, title="AutoCorrelation", seriestype=:bar, legend=false)
+    p2 = Plots.plot(df.t, df.pacf, title="Partial AutoCorrelation", seriestype=:bar, legend=false)
     
 
 
