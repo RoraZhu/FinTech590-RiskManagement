@@ -10,12 +10,12 @@ vectorX = data.iloc[:, 0]
 vectorY = data.iloc[:, 1]
 vectorZ = vectorX.append(vectorY, ignore_index=True)
 
-# Mz
+# calculate mean
 meanX = sum(vectorX)/len(vectorX)
 meanY = sum(vectorY)/len(vectorY)
 meanZ = [meanX, meanY]
 
-# Cz
+# calculate covariance
 covZ = np.cov(vectorX, vectorY, ddof=1)
 covXX = covZ[0, 0]
 covXY = covZ[0, 1]
@@ -32,9 +32,3 @@ fittedY = result.fittedvalues
 
 # Expectation of Y given X == fitted Y in OLS
 print(pd.DataFrame({'conExpY': conExpY, 'fittedY': fittedY}))
-
-# reference
-# https://stats.stackexchange.com/questions/71260/what-is-the-intuition-behind-conditional-gaussian-distributions
-# https://stats.stackexchange.com/questions/71260/what-is-the-intuition-behind-conditional-gaussian-distributions
-# https://online.stat.psu.edu/stat505/lesson/6/6.1
-# Multivariate probability distributions and linear regression.pdf
