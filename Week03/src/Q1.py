@@ -19,6 +19,8 @@ def exponentialWeights(size, lam):
 
 
 def expCovForPair(weight, x, y):
+    x = list(x)
+    y = list(y)
     xMean = np.mean(x)
     yMean = np.mean(y)
     cov = 0

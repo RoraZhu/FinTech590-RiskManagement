@@ -13,48 +13,48 @@ path = dirname(abspath(__file__))
 data = pd.read_csv(path + '/data/DailyReturn.csv')
 data = data.iloc[:, 1:len(data.columns)]
 
-# # Question 1
-# lambdas = [0.1, 0.3, 0.5, 0.7, 0.9, 0.97]
-# for i in range(len(lambdas)):
-#     print("lambda = ", lambdas[i])
-#     covMatrix = Q1.expCovForFrame(data, lambdas[i])
-#     cumEigen = Q1.pcaExplained(covMatrix)
-#     plt.plot(cumEigen, label="lambda="+str(lambdas[i]))
-# plt.legend()
-# plt.show()
+# Question 1
+lambdas = [0.1, 0.3, 0.5, 0.7, 0.9, 0.97]
+for i in range(len(lambdas)):
+    print("lambda = ", lambdas[i])
+    covMatrix = Q1.expCovForFrame(data, lambdas[i])
+    cumEigen = Q1.pcaExplained(covMatrix)
+    plt.plot(cumEigen, label="lambda="+str(lambdas[i]))
+plt.legend()
+plt.show()
+
 
 # Question 2
-# executionTimeForHigham = []
-# executionTimeForJacker = []
-# frobeniusNormForHigham = []
-# frobeniusNormForJacker = []
-# for n in [10, 50, 100, 500, 1000, 2000]:
-#     print(n)
-#     A = [[0.9 for i in range(n)] for j in range(n)]
-#     for i in range(len(A)):
-#         A[i][i] = 1
-#     A[0][1] = 0.7357
-#     A[1][0] = 0.7357
-#     A = pd.DataFrame(A)
-#
-#     startTime = time.time()
-#     highamA = Q2.highamNearPSD(A, 100, 1e-9)
-#     executionTimeForHigham.append(time.time() - startTime)
-#
-#     startTime = time.time()
-#     nearA = Q2.nearPSD(A)
-#     executionTimeForJacker.append(time.time() - startTime)
-#
-#     frobeniusNormForHigham.append(Q2.frobeniusNorm(highamA - A))
-#     frobeniusNormForJacker.append(Q2.frobeniusNorm(nearA - A))
-#
-# valuation = pd.DataFrame()
-# valuation['executionTimeForHigham'] = executionTimeForHigham
-# valuation['executionTimeForJacker'] = executionTimeForJacker
-# valuation['frobeniusNormForHigham'] = frobeniusNormForHigham
-# valuation['frobeniusNormForJacker'] = frobeniusNormForJacker
-# print(valuation)
+executionTimeForHigham = []
+executionTimeForJacker = []
+frobeniusNormForHigham = []
+frobeniusNormForJacker = []
+for n in [10, 50, 100, 500, 1000, 2000]:
+    print(n)
+    A = [[0.9 for i in range(n)] for j in range(n)]
+    for i in range(len(A)):
+        A[i][i] = 1
+    A[0][1] = 0.7357
+    A[1][0] = 0.7357
+    A = pd.DataFrame(A)
 
+    startTime = time.time()
+    highamA = Q2.highamNearPSD(A, 100, 1e-9)
+    executionTimeForHigham.append(time.time() - startTime)
+
+    startTime = time.time()
+    nearA = Q2.nearPSD(A)
+    executionTimeForJacker.append(time.time() - startTime)
+
+    frobeniusNormForHigham.append(Q2.frobeniusNorm(highamA - A))
+    frobeniusNormForJacker.append(Q2.frobeniusNorm(nearA - A))
+
+valuation = pd.DataFrame()
+valuation['executionTimeForHigham'] = executionTimeForHigham
+valuation['executionTimeForJacker'] = executionTimeForJacker
+valuation['frobeniusNormForHigham'] = frobeniusNormForHigham
+valuation['frobeniusNormForJacker'] = frobeniusNormForJacker
+print(valuation)
 
 
 # Question 3

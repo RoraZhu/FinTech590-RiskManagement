@@ -34,7 +34,6 @@ def findPCARoot(cov, explainPower):
     return eigenvector @ np.diag(np.sqrt(eigenvalue))
 
 
-
 def simulateMultiNormal(rows, columns):
     random = np.random.normal(size=rows*columns)
     return random.reshape(rows, columns)
