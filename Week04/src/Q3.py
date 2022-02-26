@@ -2,8 +2,8 @@ import numpy as np
 from scipy.stats import norm
 
 
-def deltaNormalVaR(alpha, rets, currPrices, holdings, dateColumn='Date'):
-    rets = rets.drop(dateColumn, axis=1)
+def deltaNormalVaR(alpha, rets, currPrices, holdings):
+    # rets = rets.drop(dateColumn, axis=1)
     presentValue = (currPrices * holdings).sum()
     weights = currPrices * holdings / presentValue
     sigma = np.cov(rets.T)
@@ -11,8 +11,8 @@ def deltaNormalVaR(alpha, rets, currPrices, holdings, dateColumn='Date'):
     return -presentValue * norm.ppf(alpha) * portfolioSigma
 
 
-def historicVaR(alpha, rets, currPrices, holdings, dateColumn='Date'):
-    rets = rets.drop(dateColumn, axis=1)
+def historicVaR(alpha, rets, currPrices, holdings):
+    # rets = rets.drop(dateColumn, axis=1)
     simulatedPrices = (1 + rets) * currPrices
     simulatedValues = simulatedPrices @ holdings
     simulatedValues = simulatedValues.sort_values()
