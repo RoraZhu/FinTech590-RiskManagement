@@ -10,3 +10,10 @@
 ### Find functions in Week4/src/Q1.py  Week4/src/Q2.py   Week4/src/Q3.py
 ### See response in Week4/response.pdf
 ### See presentation in week4/responsePresentation.pptx
+
+## For Project 4
+### Execute the code in Week5/main.py
+### Find functions in RiskManagementPackage
+### Find testcases in tests/testcases.py
+### See response in Week5/response.pdf
+### See presentation in week5/responsePPT.pptx
