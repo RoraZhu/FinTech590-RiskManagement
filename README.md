@@ -1,5 +1,11 @@
 # FinTech590-RiskManagement
 
+## For Project 5
+### Execute the code in Week6/main.py
+### Find functions in RiskManagementPackage  Week6/src/Q1.py
+### See response in Week6/response.pdf
+### See presentation in week6/presentation.pptx
+
 ## For Project 4
 ### Execute the code in Week5/main.py
 ### Find functions in RiskManagementPackage
